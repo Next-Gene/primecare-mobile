@@ -13,7 +13,6 @@ void main() {
     ),
   );
 }
-git config --global user.name "Mohamed-hazem-mohamed"
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
