@@ -20,8 +20,21 @@ class LoginComponent extends StatelessWidget {
     return BlocProvider(
       create: (context) => LoginCubit(),
       child: BlocConsumer<LoginCubit, LoginStates>(
-        listener: (context, state) {},
+        listener: (context, state) {
+          if (state is LoginSuccess){
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text("Success")));
+          } else if(state is LoginWithError){
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(state.errMessage)));
+          }
+        },
         builder: (context, state) {
+          if(state is LoginLoading){
+            const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
           return Scaffold(
             body: Container(
               width: double.infinity,
@@ -140,6 +153,7 @@ class LoginComponent extends StatelessWidget {
                                 background: Color(0xFF0098FF),
                                 function: () {
                                   if (formKey.currentState!.validate()) {
+                                    context.read<LoginCubit>().login();
                                     print("Email: \${emailController.text}");
                                     Navigator.push(
                                         context,
