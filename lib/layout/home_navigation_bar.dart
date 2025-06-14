@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nexgen/layout/cubit/cubit.dart';
 import 'package:nexgen/layout/cubit/states.dart';
+import 'package:nexgen/network_api/remote/dio_Helper.dart';
 import 'package:water_drop_nav_bar/water_drop_nav_bar.dart';
 class HomeNavBar extends StatelessWidget {
   const HomeNavBar({super.key});
@@ -9,15 +10,17 @@ class HomeNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => AppCubit(),
+      create: (context) => AppCubit()..getCategory(),
       child: BlocConsumer<AppCubit,AppStates>(
         listener:(context, state) {} ,
         builder: (context, state) {
           AppCubit cubit = AppCubit.get(context);
           return Scaffold(
-            // appBar: AppBar(
-            //   title: Text("Nav Bar Content Page"),
-            // ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+
+              },
+              child: Icon(Icons.ac_unit_rounded),),
             body:cubit.screens[cubit.selectedIndex], // عرض الصفحة حسب الأيقونة المختارة
             bottomNavigationBar: Padding(
               padding: const EdgeInsets.only(bottom: 10),

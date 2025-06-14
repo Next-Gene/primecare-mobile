@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:like_button/like_button.dart';
 import 'package:nexgen/Component/component_category_icon.dart';
 import 'package:nexgen/home_page/List.dart';
 import 'package:nexgen/home_page/item_details.dart';
 
-import '../Component/desigin_card_product.dart'; // اللي فيه List<Map> categories
+import '../Component/desigin_card_product.dart';
+import '../layout/cubit/cubit.dart';
+import '../layout/cubit/states.dart';
+
+
 
 class Home_page extends StatelessWidget {
   const Home_page({super.key});
@@ -83,7 +88,6 @@ class Home_page extends StatelessWidget {
           color: Colors.white,
           child: Column(
             children: [
-              // Search Box
               Center(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -189,17 +193,30 @@ class Home_page extends StatelessWidget {
               ),
 
               const SizedBox(height: 10),
-              SizedBox(
-                height: 120,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) => default_categories_icon(
-                    background_color: Color(0xFFF3F3F3),
-                    text1: categories[index]["title"],
-                    imagePath: categories[index]["icon"],
-                  ),
-                  itemCount: categories.length,
-                ),
+              BlocBuilder<AppCubit, AppStates>(
+                builder: (context, state) {
+                  var cubit = AppCubit.get(context);
+
+                  if (cubit.category.isEmpty) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  return SizedBox(
+                    height: 120,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: cubit.category.length,
+                      itemBuilder: (context, index) {
+                        final item = cubit.category[index];
+                        return default_categories_icon(
+                          background_color: const Color(0xFFF3F3F3),
+                          text1: item['name'],
+                          imagePath: item['photoUrl'] ?? 'Assets/default_icon.png',
+                        );
+                      },
+                    ),
+                  );
+                },
               ),
 
               Padding(

@@ -4,8 +4,10 @@ import 'package:nexgen/layout/home_navigation_bar.dart';
 import 'package:nexgen/modules/welcome_screen/login_screen/login.dart';
 
 import 'add_to_card/cubit/cubit.dart';
+import 'network_api/remote/dio_Helper.dart';
 
 void main() {
+  DioHelper.init();
   runApp(
     BlocProvider(
       create: (context) => CartCubit(),
@@ -19,7 +21,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: LoginScreen(),
+      home: HomeNavBar(),
       debugShowCheckedModeBanner: false,
     );
   }

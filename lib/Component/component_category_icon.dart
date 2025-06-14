@@ -13,11 +13,14 @@ Widget default_categories_icon({
           CircleAvatar(
             backgroundColor: background_color,
             radius: 27,
-            child: Image.asset(
-              imagePath,
-              width: 45,
-              height: 45,
-              fit: BoxFit.contain,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(22), // 👈 دي بتدي الصورة شكل دائري أو شبه دائري
+              child: Image.network(
+                imagePath,
+                width: 45,
+                height: 45,
+                fit: BoxFit.cover, // الأفضل cover علشان يملى الشكل
+              ),
             ),
           ),
           const SizedBox(height: 6),
@@ -29,7 +32,7 @@ Widget default_categories_icon({
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 10,
-                  fontWeight:FontWeight.w500
+                fontWeight: FontWeight.w500,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
