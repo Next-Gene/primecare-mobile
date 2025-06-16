@@ -104,6 +104,29 @@ class AppCubit extends Cubit<AppStates>
  }
 
 
+ void askQuestion(String query) async {
+   emit(AskQuestionLoadingState());
+
+   try {
+     final response = await DioHelper.postData(
+       url: '/api/PrimeAi/ask',
+       data: {"query": query},
+     );
+
+     print('API Response: ${response.data}');  // <<< تأكد هنا من شكل الرد
+
+     final botReply = response.data['response'] ?? "لم يتم تلقي رد";
+
+     emit(AskQuestionSuccessState(botReply));
+   } catch (e) {
+     print('API Error: $e');  // <<< لو فيه خطأ
+     emit(AskQuestionErrorState(e.toString()));
+   }
+ }
+
+
+
+
 
 }
 

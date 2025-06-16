@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:like_button/like_button.dart';
 import 'package:nexgen/Component/component_category_icon.dart';
 import 'package:nexgen/home_page/item_details.dart';
 import 'package:nexgen/home_page/test.dart';
@@ -314,43 +315,80 @@ class Home_page extends StatelessWidget {
                               ),
                             );
                           },
-                          child: Card(
-                            color: Colors.lightBlue.shade100,
-                            elevation: 3,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                                  child: Image.network(
-                                    product.photoUrl ?? '',
-                                    height: 120,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        product.name,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                Stack(
+                                  children: [
+                                    Container(
+                                      width: 143,
+                                      height: 143,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade800, // خلفية رمادي غامق
+                                        border: Border.all(color: Colors.grey, width: 2), // البوردر رمادي وسميك
+                                        borderRadius: BorderRadius.circular(25), // نصف قطر الزوايا
                                       ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        '${product.price} EGP',
-                                        style: const TextStyle(color: Colors.green),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(25),
+                                        child: Image.network(
+                                          product.photoUrl ?? '',
+                                          fit: BoxFit.contain,
+                                        ),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+
+
+
+                                    const Positioned(
+                                      top: 8,
+                                      right: 8,
+                                      child: LikeButton(size: 25),
+                                    ),
+                                  ],
                                 ),
+                                const SizedBox(height: 8),
+                                Column(
+                                  children: [
+                                    Text(
+                                      product.name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          "EGP ${product.price}",
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          "EGP ${product.price + 100}", // سعر قبل الخصم كمثال
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.grey,
+                                            decoration: TextDecoration.lineThrough,
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+
                               ],
                             ),
                           ),
@@ -358,6 +396,7 @@ class Home_page extends StatelessWidget {
                       },
                     ),
                   );
+
                 },
               ),
             ],

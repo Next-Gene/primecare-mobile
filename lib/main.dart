@@ -27,8 +27,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      //home: HomeNavBar(),
-      home: LoginScreen(),
+      home: HomeNavBar(),
+     // home: Test(),
       debugShowCheckedModeBanner: false,
     );
   }
