@@ -1,37 +1,54 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nexgen/modules/welcome_screen/login_screen/cubit/states.dart';
-import 'package:nexgen/modules/welcome_screen/login_screen/login_component.dart';
-import 'package:nexgen/modules/welcome_screen/login_screen/sign_up_component.dart';
 
 class LoginCubit extends Cubit<LoginStates>
 {
   LoginCubit() : super(LoginInitialState()); // ✅ تمرير الحالة الابتدائية بشكل صحيح
   static LoginCubit get(context) => BlocProvider.of(context);
-  int x = 0 ;
-  int selectedIndex =0;
-
+  
+  final Dio _dio = Dio();
+  
+  int x = 0 ;  int selectedIndex =0;
   bool ispassword = true;
+  String? token;
 
+  Future<void> login({
+    required String email,
+    required String password
+}) async{
+    emit(LoginLoading());
+    
+    try{
+      final response = await _dio.post(
+        "https://primecareapi.runasp.net/api/v1/Auth/login",
+        data: {
+          "email": email,
+          "password": password
+        },
+        options: Options(headers: {
+          'Content-Type': 'application/json'
+        }),
+      );
 
-  void login() async{
-    try {
-      emit(LoginLoading());
-      final response = await Dio().post(
-          "https://primecareapi.runasp.net/api/v1/Auth/login",
-          data: {
-            "email": LoginComponent.emailController.text,
-            "password": LoginComponent.passwordController.text
-          });
-      emit(LoginSuccess());
-      print(response);
+      if(response.statusCode == 200 && response.data['success'] == true){
+        emit(LoginSuccess(message: 'Logged in!'));
+        token = response.data['token'];
+      } else {
+        emit(LoginWithError(errMessage: response.data['message'] ?? 'Email or Password wrong'));
+      }
+      print(response.statusCode);
+      print(response.data);
     }catch(e){
-      emit(LoginWithError(errMessage: e.toString()));
-      print(e.toString());
+      if(e is DioException){
+        emit(LoginWithError(errMessage: e.response?.data['message'] ?? e.message ?? 'Server error'));
+      } else {
+        emit(LoginWithError(errMessage: e.toString()));
+      }
     }
   }
 
-  void signUp({
+  Future<void> signUp({
     required String email,
     required String fname,
     required String lname,
@@ -40,23 +57,38 @@ class LoginCubit extends Cubit<LoginStates>
     required String userName,
     required String phoneNumber,
   }) async {
-    try {
       emit(SignupLoading());
-      final response = await Dio().post(
+    try {
+      final response = await _dio.post(
         "https://primecareapi.runasp.net/api/v1/Auth/register",
         data: {
           "email": email,
           "fname": fname,
           "lname": lname,
           "password": password,
+          "phoneNumber": phoneNumber,
           "repassword": repassword,
           "userName": userName,
-          "phoneNumber": phoneNumber,
         },
+          options: Options(headers: {
+            'Content-Type': 'application/json',
+          })
       );
-      emit(SignupSuccess());
+
+      if(response.statusCode == 200 && response.data['success'] == true){
+        emit(SignupSuccess(message: 'signed in!'));
+      } else {
+        emit(SignupWithError(errMessage: response.data['message'] ?? 'check inputs are correct!'));
+      }
+
+      print(response.statusCode);
+      print(response.data);
     } catch (e) {
-      emit(SignupWithError(errMessage: e.toString()));
+      if(e is DioException){
+        emit(SignupWithError(errMessage: e.response?.data['message'] ?? e.message ?? 'Server error'));
+      } else {
+        emit(SignupWithError(errMessage: e.toString()));
+      }
     }
   }
 

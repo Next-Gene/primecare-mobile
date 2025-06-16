@@ -7,9 +7,14 @@ import 'package:nexgen/modules/welcome_screen/login_screen/cubit/cubit.dart';
 import 'package:nexgen/modules/welcome_screen/login_screen/cubit/states.dart';
 import 'package:nexgen/modules/welcome_screen/login_screen/sign_up_component.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(

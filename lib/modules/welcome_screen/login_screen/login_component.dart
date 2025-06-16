@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nexgen/Component/design_card.dart';
 import 'package:nexgen/Component/text_field_button_component.dart';
-import 'package:nexgen/home_page/home.dart';
 import 'package:nexgen/modules/welcome_screen/login_screen/cubit/cubit.dart';
 import 'package:nexgen/modules/welcome_screen/login_screen/cubit/states.dart';
 
 import '../../../layout/home_navigation_bar.dart';
+import 'forget_password/verifyEmail.dart';
 
-class LoginComponent extends StatelessWidget {
+class LoginComponent extends StatefulWidget {
   LoginComponent({super.key});
 
   static final TextEditingController emailController = TextEditingController();
@@ -16,17 +16,23 @@ class LoginComponent extends StatelessWidget {
   static final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
+  State<LoginComponent> createState() => _LoginComponentState();
+}
+
+class _LoginComponentState extends State<LoginComponent> {
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => LoginCubit(),
       child: BlocConsumer<LoginCubit, LoginStates>(
         listener: (context, state) {
           if (state is LoginSuccess){
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text("Success")));
-          } else if(state is LoginWithError){
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(state.errMessage)));
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message)));
+          }
+          if(state is LoginWithError){
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.errMessage)));
           }
         },
         builder: (context, state) {
@@ -41,7 +47,7 @@ class LoginComponent extends StatelessWidget {
               height: double.infinity,
               color: Color(0x330098FF),
               child: Form(
-                key: formKey,
+                key: LoginComponent.formKey,
                 child: Column(
                   children: [
                     Expanded(
@@ -99,7 +105,7 @@ class LoginComponent extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 30),
                               child: defaultFormField(
-                                  controller: emailController,
+                                  controller: LoginComponent.emailController,
                                   type: TextInputType.emailAddress,
                                   validate: (String? value) {
                                     if (value!.isEmpty) {
@@ -110,11 +116,11 @@ class LoginComponent extends StatelessWidget {
                                   label: "Email Address",
                                   prefix: Icons.mail_outline_outlined),
                             ),
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 30),
                               child: defaultFormField(
-                                controller: passwordController,
+                                controller: LoginComponent.passwordController,
                                 type: TextInputType.visiblePassword,
                                 validate: (String? value) {
                                   if (value!.isEmpty) {
@@ -133,33 +139,50 @@ class LoginComponent extends StatelessWidget {
                                 },
                               ),
                             ),
-                            const Padding(
-                              padding: EdgeInsets.only(top: 12, left: 30),
+                            const SizedBox(height: 20),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 12, left: 30),
                               child: Align(
                                 alignment: Alignment.centerLeft,
-                                child: Text(
-                                  "Forgot Password?",
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w400),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    // Navigate to forgot password screen
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const VerifyEmail()),
+                                    );
+                                  },
+                                  child: const Text(
+                                    'Forgot Password?',
+                                    style: TextStyle(
+                                      // Your existing text style
+                                      color: Colors.black,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                            //***********
+                            const SizedBox(height: 20),
                             Padding(
                               padding: const EdgeInsets.only(bottom: 40),
                               child: defaultButton(
                                 width: 239,
-                                background: Color(0xFF0098FF),
+                                background: const Color(0xFF0098FF),
                                 function: () {
-                                  if (formKey.currentState!.validate()) {
-                                    context.read<LoginCubit>().login();
-                                    print("Email: \${emailController.text}");
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => HomeNavBar(),)
+                                  if (LoginComponent.formKey.currentState!.validate()) {
+                                    context.read<LoginCubit>().login(
+                                      password: LoginComponent.passwordController.text,
+                                      email: LoginComponent.emailController.text
                                     );
+
+                                    WidgetsBinding.instance.addPostFrameCallback((_){
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => const HomeNavBar(),)
+                                      );
+                                    });
                                   }
                                 },
                                 text: "Login",

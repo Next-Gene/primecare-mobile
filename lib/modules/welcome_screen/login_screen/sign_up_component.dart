@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../Component/text_field_button_component.dart';
-import '../../../home_page/home.dart';
 import '../../../layout/home_navigation_bar.dart';
 import 'cubit/cubit.dart';
 import 'cubit/states.dart';
@@ -20,9 +19,9 @@ class _SignupComponentState extends State<SignupComponent> {
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController FnameController = TextEditingController();
-  final TextEditingController LnameController = TextEditingController();
-  final TextEditingController PhoneController = TextEditingController();
+  final TextEditingController fnameController = TextEditingController();
+  final TextEditingController lnameController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController repassController = TextEditingController();
 
@@ -33,8 +32,9 @@ class _SignupComponentState extends State<SignupComponent> {
   void dispose() {
     emailController.dispose();
     nameController.dispose();
-    FnameController.dispose();
-    LnameController.dispose();
+    fnameController.dispose();
+    lnameController.dispose();
+    phoneController.dispose();
     passwordController.dispose();
     repassController.dispose();
     super.dispose();
@@ -47,8 +47,8 @@ class _SignupComponentState extends State<SignupComponent> {
   child: BlocConsumer<LoginCubit, LoginStates>(
   listener: (context, state) {
     if(state is SignupSuccess){
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Success")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(state.message)));
     } else if(state is SignupWithError){
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(state.errMessage)));
@@ -56,7 +56,7 @@ class _SignupComponentState extends State<SignupComponent> {
   },
   builder: (context, state) {
     if(state is SignupLoading){
-      Center(
+      const Center(
         child: CircularProgressIndicator(),
       );
     }
@@ -101,7 +101,7 @@ class _SignupComponentState extends State<SignupComponent> {
                     children: [
                       Expanded(
                         child: defaultFormField(
-                          controller: FnameController,
+                          controller: fnameController,
                           type: TextInputType.name,
                           validate: (String? value) {
                             if (value!.isEmpty) return 'First name must not be empty';
@@ -114,7 +114,7 @@ class _SignupComponentState extends State<SignupComponent> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: defaultFormField(
-                          controller: LnameController,
+                          controller: lnameController,
                           type: TextInputType.name,
                           validate: (String? value) {
                             if (value!.isEmpty) return 'Last name must not be empty';
@@ -145,7 +145,7 @@ class _SignupComponentState extends State<SignupComponent> {
                 Padding(
                   padding:const EdgeInsets.symmetric(horizontal: 30),
                   child: defaultFormField(
-                      controller: PhoneController,
+                      controller: phoneController,
                       type: TextInputType.phone,
                       validate: (String? value){
                         if(value!.isEmpty){
@@ -200,16 +200,6 @@ class _SignupComponentState extends State<SignupComponent> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                const Padding(
-                  padding: EdgeInsets.only(top: 12, left: 30),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Forgot Password?",
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-                    ),
-                  ),
-                ),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 40),
                   child: defaultButton(
@@ -219,17 +209,20 @@ class _SignupComponentState extends State<SignupComponent> {
                       if (formKey.currentState!.validate()) {
                         context.read<LoginCubit>().signUp(
                             email: emailController.text,
-                            fname: FnameController.text,
-                            lname: LnameController.text,
+                            fname: fnameController.text,
+                            lname: lnameController.text,
                             password: passwordController.text,
                             repassword: repassController.text,
                             userName: nameController.text,
-                            phoneNumber: PhoneController.text);
-                        print("Email: ${emailController.text}");
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => HomeNavBar()),
-                        );
+                            phoneNumber: phoneController.text);
+
+                        WidgetsBinding.instance.addPostFrameCallback((_){
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const HomeNavBar(),)
+                          );
+                        });
                       }
                     },
                     text: "Sign UP",
