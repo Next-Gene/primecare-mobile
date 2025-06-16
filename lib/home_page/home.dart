@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:like_button/like_button.dart';
 import 'package:nexgen/Component/component_category_icon.dart';
-import 'package:nexgen/home_page/List.dart';
 import 'package:nexgen/home_page/item_details.dart';
-
-import '../Component/desigin_card_product.dart';
+import 'package:nexgen/home_page/test.dart';
 import '../layout/cubit/cubit.dart';
 import '../layout/cubit/states.dart';
-
-
 
 class Home_page extends StatelessWidget {
   const Home_page({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final cubit = AppCubit.get(context);
+
+    // استدعاء المنتجات لو مش موجودة
+    if (cubit.products.isEmpty) {
+      cubit.getProducts();
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -88,6 +90,7 @@ class Home_page extends StatelessWidget {
           color: Colors.white,
           child: Column(
             children: [
+              // البحث
               Center(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -117,7 +120,7 @@ class Home_page extends StatelessWidget {
                 ),
               ),
 
-              // Banner
+              // بانر الخصم
               Stack(
                 children: [
                   Container(
@@ -179,7 +182,7 @@ class Home_page extends StatelessWidget {
                 ],
               ),
 
-              // Categories header
+              // عنوان الكاتيجوري
               Padding(
                 padding: const EdgeInsets.only(top: 10, left: 20),
                 child: Row(
@@ -193,10 +196,10 @@ class Home_page extends StatelessWidget {
               ),
 
               const SizedBox(height: 10),
+
+              // الكاتيجوري
               BlocBuilder<AppCubit, AppStates>(
                 builder: (context, state) {
-                  var cubit = AppCubit.get(context);
-
                   if (cubit.category.isEmpty) {
                     return const Center(child: CircularProgressIndicator());
                   }
@@ -219,6 +222,7 @@ class Home_page extends StatelessWidget {
                 },
               ),
 
+              // عنوان Flash sale
               Padding(
                 padding: const EdgeInsets.only(left: 20),
                 child: Row(
@@ -236,8 +240,7 @@ class Home_page extends StatelessWidget {
                         ),
                         width: 75,
                         height: 24,
-                        child: Align(
-                          alignment: AlignmentDirectional.center,
+                        child: const Center(
                           child: Text(
                             "02:59:55",
                             style: TextStyle(
@@ -250,12 +253,17 @@ class Home_page extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    const Text(
-                      "See all",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.black38,
-                        fontWeight: FontWeight.w800,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => Test(),));
+                      },
+                      child: const Text(
+                        "See all",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black38,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
                     const Padding(
@@ -271,32 +279,86 @@ class Home_page extends StatelessWidget {
               ),
 
               const SizedBox(height: 10),
-              Column(
-                children: [
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: products.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.9,
+
+              // المنتجات
+              BlocBuilder<AppCubit, AppStates>(
+                builder: (context, state) {
+                  if (state is GetProductsLoadingState) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (cubit.products.isEmpty) {
+                    return const Center(child: Text('لا توجد منتجات حالياً'));
+                  }
+
+                  return Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: cubit.products.length,
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.7,
+                        mainAxisSpacing: 10,
+                        crossAxisSpacing: 10,
+                      ),
+                      itemBuilder: (context, index) {
+                        final product = cubit.products[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ProductDetailsPage(product: product),
+                              ),
+                            );
+                          },
+                          child: Card(
+                            color: Colors.lightBlue.shade100,
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                                  child: Image.network(
+                                    product.photoUrl ?? '',
+                                    height: 120,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        product.name,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        '${product.price} EGP',
+                                        style: const TextStyle(color: Colors.green),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                    itemBuilder: (context, index) {
-                      final index_product = products[index];
-                      return InkWell(
-                        child: design_card_product(
-                          image: index_product["image_product"],
-                          title: index_product["title_product"],
-                          price: index_product["price_product"],
-                          priceAfterDiscount: index_product["price_after_discount"],
-                        ),
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => ItemDetails(product: index_product,),));
-                        },
-                      );
-                    },
-                  )
-                ],
+                  );
+                },
               ),
             ],
           ),

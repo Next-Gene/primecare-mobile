@@ -6,6 +6,7 @@ import 'package:nexgen/layout/cubit/states.dart';
 import '../../add_to_card/add_to_cart.dart';
 import '../../category_page/category.dart';
 import '../../home_page/home.dart';
+import '../../home_page/model_product.dart';
 import '../../network_api/remote/dio_Helper.dart';
 import '../../profile_page/profile.dart';
 
@@ -63,6 +64,46 @@ class AppCubit extends Cubit<AppStates>
      emit(GetCategoryError(error: error.toString()));
    });
  }
+
+ List<ProductModel> products = [];
+
+ void getProducts() {
+   emit(GetProductsLoadingState()); // حالة loading (هنعرفها كمان شوية)
+
+   DioHelper.getData(url: '/api/v1/products').then((value) {
+     products = (value.data as List)
+         .map((json) => ProductModel.fromJson(json))
+         .toList();
+
+     emit(GetProductsSuccessState());
+   }).catchError((error) {
+     print(error.toString());
+     emit(GetProductsErrorState(error: error.toString()));
+   });
+ }
+
+
+
+ Future<void> addToCart(Map<String, dynamic> productData) async {
+   emit(AddToCartLoadingState());
+
+   try {
+     final value = await DioHelper.postData(
+       url: '/api/v1/cart/items',
+       data: productData,
+     );
+
+     if (value.statusCode == 200 || value.statusCode == 201) {
+       emit(AddToCartSuccessState());
+     } else {
+       emit(AddToCartErrorState("فشل في الإضافة"));
+     }
+   } catch (error) {
+     emit(AddToCartErrorState(error.toString()));
+   }
+ }
+
+
 
 }
 

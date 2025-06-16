@@ -17,3 +17,22 @@ class GetCategoryError extends AppStates{
 
   GetCategoryError({required this.error});
 }
+
+
+class GetProductsLoadingState extends AppStates {}
+
+class GetProductsSuccessState extends AppStates {}
+
+class GetProductsErrorState extends AppStates {
+  final String error;
+  GetProductsErrorState({required this.error});
+}
+
+class AddToCartLoadingState extends AppStates {}
+
+class AddToCartSuccessState extends AppStates {}
+
+class AddToCartErrorState extends AppStates {
+  final String error;
+  AddToCartErrorState(this.error);
+}
