@@ -1,6 +1,40 @@
-// import 'package:flutter/material.dart';
-// import '../modules/welcome_screen/login_screen/login.dart';
-//
+import 'package:flutter/material.dart';
+import 'package:nexgen/modules/welcome_screen/login_screen/login.dart';
+import 'package:nexgen/modules/welcome_screen/welcome.dart';
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 4), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+              child: AnimatedPill()
+          ), // Your animated pill widget
+        ),
+      ),
+    );
+  }
+}
+
 // class SplashScreen extends StatefulWidget {
 //   @override
 //   _SplashScreenState createState() => _SplashScreenState();

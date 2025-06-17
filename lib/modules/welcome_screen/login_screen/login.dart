@@ -1,11 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nexgen/Component/design_card.dart';
 import 'package:nexgen/modules/welcome_screen/login_screen/login_component.dart';
-import 'package:nexgen/modules/welcome_screen/login_screen/cubit/cubit.dart';
-import 'package:nexgen/modules/welcome_screen/login_screen/cubit/states.dart';
 import 'package:nexgen/modules/welcome_screen/login_screen/sign_up_component.dart';
+import 'package:nexgen/shared/cubit/Auth/auth_cubit.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,10 +16,11 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => LoginCubit(),
-      child: BlocConsumer<LoginCubit,LoginStates>(
+      create: (context) => AuthCubit(),
+      child: BlocConsumer<AuthCubit,AuthState>(
         listener:(context, state) {} ,
         builder: (context, state) {
+
           return DefaultTabController(
             length: 2,  //  Number of tabs
             child: Scaffold(

@@ -3,11 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../Component/text_field_button_component.dart';
 import '../../../layout/home_navigation_bar.dart';
-import 'cubit/cubit.dart';
-import 'cubit/states.dart';
+import '../../../shared/cubit/Auth/auth_cubit.dart';
+import '../welcome.dart';
 
 class SignupComponent extends StatefulWidget {
-
   const SignupComponent({super.key});
 
   @override
@@ -17,13 +16,13 @@ class SignupComponent extends StatefulWidget {
 class _SignupComponentState extends State<SignupComponent> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController fnameController = TextEditingController();
-  final TextEditingController lnameController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController repassController = TextEditingController();
+  final emailController = TextEditingController();
+  final nameController = TextEditingController();
+  final fnameController = TextEditingController();
+  final lnameController = TextEditingController();
+  final phoneController = TextEditingController();
+  final passwordController = TextEditingController();
+  final repassController = TextEditingController();
 
   bool isPasswordVisible = false;
   bool isRepasswordVisible = false;
@@ -42,235 +41,226 @@ class _SignupComponentState extends State<SignupComponent> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-  create: (context) => LoginCubit(),
-  child: BlocConsumer<LoginCubit, LoginStates>(
-  listener: (context, state) {
-    if(state is SignupSuccess){
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(state.message)));
-    } else if(state is SignupWithError){
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.errMessage)));
-    }
-  },
-  builder: (context, state) {
-    if(state is SignupLoading){
-      const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        color: const Color(0x330098FF),
-        child: Form(
-          key: formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 35),
-                  child: Text(
-                    "Create Account",
-                    style: TextStyle(
-                      color: Colors.lightBlue,
-                      fontSize: 32,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-                  child: defaultFormField(
-                    controller: emailController,
-                    type: TextInputType.name,
-                    validate: (String? value) {
-                      if (value!.isEmpty) return 'Nickname must not be empty';
-                      return null;
-                    },
-                    label: "Your Nickname",
-                    prefix: Icons.person,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: defaultFormField(
-                          controller: fnameController,
-                          type: TextInputType.name,
-                          validate: (String? value) {
-                            if (value!.isEmpty) return 'First name must not be empty';
-                            return null;
-                          },
-                          label: 'First Name',
-                          prefix: Icons.account_box,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: defaultFormField(
-                          controller: lnameController,
-                          type: TextInputType.name,
-                          validate: (String? value) {
-                            if (value!.isEmpty) return 'Last name must not be empty';
-                            return null;
-                          },
-                          label: 'Last Name',
-                          prefix: Icons.account_box_outlined,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
-                  child: defaultFormField(
-                    controller: nameController,
-                    type: TextInputType.emailAddress,
-                    validate: (String? value) {
-                      if (value!.isEmpty) return 'Email must not be empty';
-                      return null;
-                    },
-                    label: "Email Address",
-                    prefix: Icons.mail_outline_outlined,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Padding(
-                  padding:const EdgeInsets.symmetric(horizontal: 30),
-                  child: defaultFormField(
-                      controller: phoneController,
-                      type: TextInputType.phone,
-                      validate: (String? value){
-                        if(value!.isEmpty){
-                          return 'Phone must not be empty';
-                        }
-                        return null;
-                      },
-                      label: "Phone Number",
-                      prefix: Icons.phone_android)
-                ),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
-                  child: defaultFormField(
-                    controller: passwordController,
-                    type: TextInputType.visiblePassword,
-                    validate: (String? value) {
-                      if (value!.isEmpty) return 'Password must not be empty';
-                      return null;
-                    },
-                    label: "Password",
-                    prefix: Icons.lock_outline_rounded,
-                    suffix: isPasswordVisible ? Icons.visibility_off : Icons.remove_red_eye,
-                    ispassword: !isPasswordVisible,
-                    suffixpressed: () {
-                      setState(() {
-                        isPasswordVisible = !isPasswordVisible;
-                      });
-                    },
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
-                  child: defaultFormField(
-                    controller: repassController,
-                    type: TextInputType.visiblePassword,
-                    validate: (String? value) {
-                      if (value!.isEmpty) return 'Repassword must not be empty';
-                      if (value != passwordController.text) return 'Passwords do not match';
-                      return null;
-                    },
-                    label: "Repassword",
-                    prefix: Icons.lock_outline_rounded,
-                    suffix: isRepasswordVisible ? Icons.visibility_off : Icons.remove_red_eye,
-                    ispassword: !isRepasswordVisible,
-                    suffixpressed: () {
-                      setState(() {
-                        isRepasswordVisible = !isRepasswordVisible;
-                      });
-                    },
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 40),
-                  child: defaultButton(
-                    width: 239,
-                    background: const Color(0xFF0098FF),
-                    function: () {
-                      if (formKey.currentState!.validate()) {
-                        context.read<LoginCubit>().signUp(
-                            email: emailController.text,
-                            fname: fnameController.text,
-                            lname: lnameController.text,
-                            password: passwordController.text,
-                            repassword: repassController.text,
-                            userName: nameController.text,
-                            phoneNumber: phoneController.text);
+    return BlocConsumer<AuthCubit, AuthState>(
+      listener: (context, state) {
+        if (state is SignupSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Signed up successfully")),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomeNavBar()),
+          );
+        } else if (state is SignupWithError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.errMessage)),
+          );
+        }
+      },
+      builder: (context, state) {
+        if(state is SignupLoading){
+          return const AnimatedPill();
+        }
+        final cubit = context.read<AuthCubit>();
 
-                        WidgetsBinding.instance.addPostFrameCallback((_){
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const HomeNavBar(),)
-                          );
-                        });
-                      }
-                    },
-                    text: "Sign UP",
-                  ),
-                ),
-                const Text(
-                  "By signing in with an account, you agree to SO's",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 13,
-                    color: Colors.black38,
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 50, left: 90),
-                  child: Row(
-                    children: [
-                      Text(
-                        "Terms of Service ",
-                        style: TextStyle(
-                          decoration: TextDecoration.underline,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 13,
-                        ),
+        return Scaffold(
+          body: Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: const Color(0x330098FF),
+            child: Form(
+              key: formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 35),
+                    const Text(
+                      "Create Account",
+                      style: TextStyle(
+                        color: Colors.lightBlue,
+                        fontSize: 32,
+                        fontWeight: FontWeight.w700,
                       ),
-                      Text(
-                        "  and  ",
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400),
+                    ),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      child: defaultFormField(
+                        controller: nameController,
+                        type: TextInputType.name,
+                        validate: (value) =>
+                        value!.isEmpty ? 'Nickname must not be empty' : null,
+                        label: "Your Nickname",
+                        prefix: Icons.person,
                       ),
-                      Text(
-                        "Privacy Policy",
-                        style: TextStyle(
-                          decoration: TextDecoration.underline,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 13,
-                        ),
+                    ),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: defaultFormField(
+                              controller: fnameController,
+                              type: TextInputType.name,
+                              validate: (value) => value!.isEmpty
+                                  ? 'First name must not be empty'
+                                  : null,
+                              label: 'First Name',
+                              prefix: Icons.account_box,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: defaultFormField(
+                              controller: lnameController,
+                              type: TextInputType.name,
+                              validate: (value) => value!.isEmpty
+                                  ? 'Last name must not be empty'
+                                  : null,
+                              label: 'Last Name',
+                              prefix: Icons.account_box_outlined,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      child: defaultFormField(
+                        controller: emailController,
+                        type: TextInputType.emailAddress,
+                        validate: (value) =>
+                        value!.isEmpty ? 'Email must not be empty' : null,
+                        label: "Email Address",
+                        prefix: Icons.mail_outline_outlined,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      child: defaultFormField(
+                        controller: phoneController,
+                        type: TextInputType.phone,
+                        validate: (value) =>
+                        value!.isEmpty ? 'Phone must not be empty' : null,
+                        label: "Phone Number",
+                        prefix: Icons.phone_android,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      child: defaultFormField(
+                        controller: passwordController,
+                        type: TextInputType.visiblePassword,
+                        validate: (value) =>
+                        value!.isEmpty ? 'Password must not be empty' : null,
+                        label: "Password",
+                        prefix: Icons.lock_outline_rounded,
+                        suffix: isPasswordVisible
+                            ? Icons.visibility_off
+                            : Icons.remove_red_eye,
+                        ispassword: !isPasswordVisible,
+                        suffixpressed: () {
+                          setState(() {
+                            isPasswordVisible = !isPasswordVisible;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      child: defaultFormField(
+                        controller: repassController,
+                        type: TextInputType.visiblePassword,
+                        validate: (value) {
+                          if (value!.isEmpty) return 'Repassword must not be empty';
+                          if (value != passwordController.text)
+                            return 'Passwords do not match';
+                          return null;
+                        },
+                        label: "Repassword",
+                        prefix: Icons.lock_outline_rounded,
+                        suffix: isRepasswordVisible
+                            ? Icons.visibility_off
+                            : Icons.remove_red_eye,
+                        ispassword: !isRepasswordVisible,
+                        suffixpressed: () {
+                          setState(() {
+                            isRepasswordVisible = !isRepasswordVisible;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    if (state is SignupLoading)
+                      const CircularProgressIndicator()
+                    else
+                      defaultButton(
+                        width: 239,
+                        background: const Color(0xFF0098FF),
+                        function: () {
+                          if (formKey.currentState!.validate()) {
+                            cubit.signup(
+                              email: emailController.text,
+                              fname: fnameController.text,
+                              lname: lnameController.text,
+                              password: passwordController.text,
+                              repassword: repassController.text,
+                              name: nameController.text,
+                              phoneNumber: phoneController.text,
+                            );
+                          }
+                        },
+                        text: "Sign UP",
+                      ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      "By signing in with an account, you agree to SO's",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 13,
+                        color: Colors.black38,
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 50, left: 90),
+                      child: Row(
+                        children: [
+                          Text(
+                            "Terms of Service ",
+                            style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 13,
+                            ),
+                          ),
+                          Text(
+                            "  and  ",
+                            style:
+                            TextStyle(fontSize: 13, fontWeight: FontWeight.w400),
+                          ),
+                          Text(
+                            "Privacy Policy",
+                            style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
-  },
-),
-);
   }
 }
