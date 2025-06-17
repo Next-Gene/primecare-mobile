@@ -1,41 +1,49 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-
-class sigin_card extends StatelessWidget {
-  const sigin_card
-      ({
+class SigninCard extends StatelessWidget {
+  const SigninCard({
     super.key,
-    required this.Text1,
+    required this.text,
     required this.icon,
-    this.styling,
+    this.textStyle,
+    this.onTap,
   });
 
-  final String Text1;
+  final String text;
   final Widget icon;
-  final TextStyle? styling;
-
+  final TextStyle? textStyle;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return  Card(
-      color: Colors.white,
-      margin: EdgeInsets.symmetric(horizontal: 15),
-      shape: RoundedRectangleBorder (
-          borderRadius:BorderRadius.circular(20),
-          side: BorderSide(color: Colors.black12)
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only( top: 20, bottom: 20,),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            icon,
-            SizedBox(
-              width: 10,
-            ),
-            Text(Text1,style: styling,)
-          ],
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
+        color: Colors.white,
+        margin: const EdgeInsets.symmetric(horizontal: 15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: Colors.black12),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              icon,
+              const SizedBox(width: 12),
+              Flexible(
+                child: Text(
+                  text,
+                  style: textStyle ??
+                      const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

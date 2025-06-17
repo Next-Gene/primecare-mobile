@@ -1,10 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
     Widget defaultButton ({
         required double width ,
         required Color background,
-        required VoidCallback  function ,
+        required VoidCallback function ,
         required String text
 
     }) => Container(
@@ -14,7 +13,7 @@ import 'package:flutter/material.dart';
       color: background,
       borderRadius: BorderRadius.circular(31),
       ),
-      child: MaterialButton(
+      child: ElevatedButton(
       onPressed: function ,
       child: Text(
         text,
@@ -52,8 +51,8 @@ Widget defaultFormField({
     filled: true,
     fillColor: Colors.white,
     labelText: label,
-    labelStyle: TextStyle(color: Colors.black87),
-    hintStyle: TextStyle(color: Colors.black54),
+    labelStyle: const TextStyle(color: Colors.black87),
+    hintStyle: const TextStyle(color: Colors.black54),
     prefixIcon: Icon(prefix, color: Colors.black54),
     suffixIcon: suffix != null
         ? IconButton(
@@ -63,11 +62,11 @@ Widget defaultFormField({
         : null,
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
-      borderSide: BorderSide(color: Colors.black12, width: 2),
+      borderSide: const BorderSide(color: Colors.black12, width: 2),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
-      borderSide: BorderSide(color: Colors.blue, width: 2),
+      borderSide: const BorderSide(color: Colors.blue, width: 2),
     ),
   ),
 );
