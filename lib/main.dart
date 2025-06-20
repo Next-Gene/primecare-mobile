@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nexgen/layout/home_navigation_bar.dart';
 import 'package:nexgen/modules/welcome_screen/login_screen/login.dart';
+import 'splash_screen/splash_screen.dart';
 
 import 'add_to_card/cubit/cubit.dart';
 import 'home_page/test.dart';
@@ -32,7 +33,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: LoginScreen(), // 🟢 بعد تسجيل الدخول هتنتقل لـ HomeNavBar
+      initialRoute: '/splash',
+      routes: {
+        '/splash': (context) => const SplashScreen(),
+        '/home': (context) => const LoginScreen() // 🟢 بعد تسجيل الدخول هتنتقل لـ HomeNavBar
+      },
       debugShowCheckedModeBanner: false,
     );
   }

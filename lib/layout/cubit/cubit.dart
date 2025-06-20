@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../add_to_card/add_to_cart.dart';
@@ -186,10 +187,9 @@ class AppCubit extends Cubit<AppStates> {
   // *** هنا نضيف عناصر الطلب (orderItems) التي نأخذها من رد API عند الدفع ***
   List<Map<String, dynamic>> orderItemsFromApi = [];
 
-  void parseOrderItemsFromResponse(Map<String, dynamic> response) {
+  void parseOrderItemsFromResponse(Map<String, dynamic> response) async {
     if (response.containsKey('orderItems')) {
       final items = response['orderItems'] as List<dynamic>;
-
       orderItemsFromApi = items.map((item) {
         final product = item['itemOrderd'] ?? {};
         return {
@@ -208,6 +208,11 @@ class AppCubit extends Cubit<AppStates> {
     }
   }
 
+  String? orderTimeDate;
+  String? deliveryDate;
+  String? name;
+  String? trakingNumber;
+
 
   Future<void> checkoutOrder(Map<String, dynamic> orderData) async {
     emit(CheckOutLoadingState());
@@ -219,10 +224,34 @@ class AppCubit extends Cubit<AppStates> {
 
       // نعالج عناصر الطلب من الرد
       parseOrderItemsFromResponse(response.data);
+      String Date = response.data['orderDate'];
+      orderTimeDate = await orderDate(Date); // shows the order time formatted
+      deliveryDate = addTwoDaysAndFormat(Date); // correctly adds 2 days to the original ISO date
 
+
+      name = "${response.data['shippingAddress']['firstName']} ${response.data['shippingAddress']['lastName']}";
+      trakingNumber = response.data['id'].toString();
       emit(CheckOutSuccessState(response.data));
+      if(state is CheckOutErrorState){
+        print(response.statusMessage);
+      }
     } catch (e) {
       emit(CheckOutErrorState(e.toString()));
     }
   }
+
+  Future<String> orderDate(String Date) async {
+    DateTime parsedDate = DateTime.parse(Date);
+
+    String formattedDate = DateFormat('h:mm a, MMM d, yyyy').format(parsedDate);
+
+    return formattedDate; // Output: 7 PM/AM, Jun 20, 2025
+  }
+
+  String addTwoDaysAndFormat(String isoDate) {
+    DateTime parsedDate = DateTime.parse(isoDate);
+    DateTime newDate = parsedDate.add(const Duration(days: 2));
+    return DateFormat('h:mm a, MMM d, yyyy').format(newDate);
+  }
+
 }

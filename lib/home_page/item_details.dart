@@ -108,6 +108,16 @@ class ProductDetailsPage extends StatelessWidget {
                       ),
                       child: MaterialButton(
                         onPressed: () {
+                          final productData = {
+                            "productId": product.id,   // تأكد إن هذا هو معرف المنتج الصحيح
+                            "quantity": 1,
+                          };
+
+                          AppCubit.get(context).addToCart(productData).then((_) {
+                            // بعد الإضافة بنجيب بيانات السلة من جديد للتحديث
+                            AppCubit.get(context).getCartItems();
+                          });
+
                           Navigator.push(
                             context,
                             MaterialPageRoute(

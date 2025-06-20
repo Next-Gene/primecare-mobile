@@ -40,6 +40,38 @@ class DioHelper {
     );
   }
 
+  // static Future<Response> putData({
+  //   required String url,
+  //   required Map<String, dynamic> data,
+  //   Map<String, dynamic>? query,
+  // }) async {
+  //   return await dio.put(
+  //     url,
+  //     data: data,
+  //     queryParameters: query,
+  //     options: Options(
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       }
+  //     )
+  //   );
+  // }
+  //
+  // static Future<Response> delData({
+  //   required String url,
+  //   Map<String, dynamic>? query,
+  // }) async {
+  //   return await dio.put(
+  //       url,
+  //       queryParameters: query,
+  //       options: Options(
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //           }
+  //       )
+  //   );
+  // }
+
 
   static void setToken(String token) {
     dio.options.headers['Authorization'] = 'Bearer $token';

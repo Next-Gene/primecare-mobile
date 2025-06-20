@@ -37,14 +37,14 @@ class DetailsPayment extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildOrderHeader(),
+                      _buildOrderHeader(cubit),
                       Container(
                         height: 190,
                         child: Row(
                           children: [
                             buildTimelineStep(
                               title: "Order Confirmed ",
-                              subtitle: "8:AM,Feb8,2025",
+                              subtitle: cubit.orderTimeDate ?? '8:00AM,Feb 8,2025',
                               isFirst: true,
                               isActive: true,
                             ),
@@ -55,7 +55,7 @@ class DetailsPayment extends StatelessWidget {
                             ),
                             buildTimelineStep(
                               title: "To Delivered",
-                              subtitle: "Expected Time : Feb 15,2025",
+                              subtitle: cubit.deliveryDate ?? 'Estimated time: feb 15,2025',
                               isLast: true,
                               isActive: false,
                             ),
@@ -84,10 +84,10 @@ class DetailsPayment extends StatelessWidget {
                                     color: Colors.black12,
                                     borderRadius: BorderRadius.circular(11),
                                   ),
-                                  child: const Center(
+                                  child: Center(
                                     child: Text(
-                                      'Mohamed hazem',
-                                      style: TextStyle(
+                                      cubit.name ?? 'Yassen Ahmed',
+                                      style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -114,10 +114,10 @@ class DetailsPayment extends StatelessWidget {
                                     color: Colors.black12,
                                     borderRadius: BorderRadius.circular(11),
                                   ),
-                                  child: const Center(
+                                  child: Center(
                                     child: Text(
-                                      'SS43TAX3321',
-                                      style: TextStyle(
+                                      cubit.trakingNumber ?? 'ss43',
+                                      style:const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -288,21 +288,21 @@ class DetailsPayment extends StatelessWidget {
   }
 }
 
-Widget _buildOrderHeader() {
+Widget _buildOrderHeader(AppCubit cubit) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
-    children: const [
+    children: [
       Text(
-        'Order Details #12344',
-        style: TextStyle(
+        'Order Details #${cubit.trakingNumber ?? "N/A"}',
+        style: const TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
       ),
-      SizedBox(height: 8),
+      const SizedBox(height: 8),
       Text(
-        'Date : 1/1/2025',
-        style: TextStyle(
+        'Date : ${cubit.orderTimeDate ?? "Unknown"}',
+        style: const TextStyle(
           fontSize: 16,
           color: Colors.grey,
         ),
@@ -310,6 +310,7 @@ Widget _buildOrderHeader() {
     ],
   );
 }
+
 
 Widget _buildSummaryRow(String title, String value, {bool isTotal = false}) {
   return Padding(
