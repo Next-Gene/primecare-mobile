@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-Widget buildInputField(TextEditingController controller, String label) {
+Widget buildInputField(
+    TextEditingController controller, String label) {
   return Container(
     height: 50,
     margin: const EdgeInsets.symmetric(horizontal: 0),

@@ -19,7 +19,7 @@ class ProductDetailsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(product.name),
-        backgroundColor: Colors.lightBlueAccent,
+        backgroundColor: Colors.black12,
       ),
       body: BlocListener<AppCubit, AppStates>(
         listener: (context, state) {
@@ -43,7 +43,7 @@ class ProductDetailsPage extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              color: Colors.lightBlueAccent,
+              color: Colors.white12,
               child: CarouselSlider(
                 options: CarouselOptions(
                   height: 340,
@@ -117,7 +117,7 @@ class ProductDetailsPage extends StatelessWidget {
                         },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
+                          children:  [
                             ImageIcon(
                               AssetImage("Assets/icons_buy.png"),
                               color: Colors.white,
@@ -152,17 +152,18 @@ class ProductDetailsPage extends StatelessWidget {
                       icon: const Icon(Icons.shopping_cart_outlined, color: Colors.lightBlue),
                       onPressed: () {
                         final productData = {
-                          "id": product.id,
-                          "name": product.name,
-                          "price": product.price,
-                          "photoUrl": product.photoUrl,
+                          "productId": product.id,   // تأكد إن هذا هو معرف المنتج الصحيح
+                          "quantity": 1,
                         };
 
-
-                        AppCubit.get(context).addToCart(productData);
+                        AppCubit.get(context).addToCart(productData).then((_) {
+                          // بعد الإضافة بنجيب بيانات السلة من جديد للتحديث
+                          AppCubit.get(context).getCartItems();
+                        });
                       },
                     ),
                   ),
+
                 ],
               ),
             )

@@ -1,16 +1,15 @@
 abstract class AppStates {}
 
-class AppInitialState extends AppStates{}
+class AppInitialState extends AppStates {}
 
-class AppChangeBottomNavBarState extends AppStates{}
+class AppChangeBottomNavBarState extends AppStates {}
 
 class GetCategoryLoading extends AppStates {}
 
-class GetCategorySuccessfully extends AppStates{}
+class GetCategorySuccessfully extends AppStates {}
 
-class GetCategoryError extends AppStates{
-  final String error ;
-
+class GetCategoryError extends AppStates {
+  final String error;
   GetCategoryError({required this.error});
 }
 
@@ -32,17 +31,45 @@ class AddToCartErrorState extends AppStates {
   AddToCartErrorState(this.error);
 }
 
-// ** حالات خاصة بالرد على سؤال API PrimeAi **
+// ✅ حالات الدفع (Checkout)
+class CheckOutLoadingState extends AppStates {}
+
+class CheckOutSuccessState extends AppStates {
+  final dynamic data; // الداتا الراجعة من السيرفر
+  CheckOutSuccessState(this.data);
+}
+
+class CheckOutErrorState extends AppStates {
+  final String error;
+  CheckOutErrorState(this.error);
+}
+
+// ✅ حالات الرد على الأسئلة (Prime AI)
 class AskQuestionLoadingState extends AppStates {}
 
 class AskQuestionSuccessState extends AppStates {
-  final String botReply;  // هذا المتغير يحمل الرد من الـ API
-
-  AskQuestionSuccessState(this.botReply); // استقبل الـ botReply في الكونستركتور
+  final String botReply;
+  AskQuestionSuccessState(this.botReply);
 }
-
 
 class AskQuestionErrorState extends AppStates {
   final String error;
   AskQuestionErrorState(this.error);
 }
+
+class GetCartLoadingState extends AppStates {}
+
+class GetCartSuccessState extends AppStates {}
+
+class GetCartErrorState extends AppStates {
+  final String error;
+  GetCartErrorState(this.error);
+}
+
+class OrderItemsParsedSuccessState extends AppStates {}
+
+class OrderItemsParsedErrorState extends AppStates {
+  final String error;
+  OrderItemsParsedErrorState(this.error);
+}
+

@@ -35,10 +35,16 @@ class DioHelper {
       options: Options(
         headers: {
           'Content-Type': 'application/json',
-          // لو معاك توكن: 'Authorization': 'Bearer $token',
         },
       ),
     );
   }
+
+
+  static void setToken(String token) {
+    dio.options.headers['Authorization'] = 'Bearer $token';
+  }
+
+
 
 }

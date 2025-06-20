@@ -1,58 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../buy_pages/buy_now.dart';
-import 'cubit/cubit.dart';
-import 'cubit/states.dart';
+import '../layout/cubit/cubit.dart';
+import '../layout/cubit/states.dart';
 
-class RightTicketClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    const radius = 10.0;
-    final centerY = size.height / 2;
-
-    final top = centerY - 30;
-    final bottom = centerY + 30;
-
-    final path = Path()
-      ..moveTo(0, 0)
-      ..lineTo(size.width, 0)
-      ..lineTo(size.width, top)
-      ..arcToPoint(
-        Offset(size.width, bottom),
-        radius: Radius.circular(radius),
-        clockwise: false,
-      )
-      ..lineTo(size.width, size.height)
-      ..lineTo(0, size.height)
-      ..close();
-
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
-
-class AddToCart extends StatelessWidget {
+class AddToCart extends StatefulWidget {
   const AddToCart({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
+  State<AddToCart> createState() => _AddToCartState();
+}
 
-    return BlocConsumer<CartCubit, CartState>(
-      listener: (context, state) {},
+class _AddToCartState extends State<AddToCart> {
+  @override
+  void initState() {
+    super.initState();
+    AppCubit.get(context).getCartItems();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AppCubit, AppStates>(
       builder: (context, state) {
-        final cubit = CartCubit.get(context);
-        final items = cubit.items;
+        final cubit = AppCubit.get(context);
+        final items = cubit.cartItems;
 
         return Scaffold(
           body: Stack(
             children: [
-              Container(
-                width: double.infinity,
-                height: screenHeight,
-              ),
+              Container(width: double.infinity),
               Container(
                 height: 280,
                 decoration: const BoxDecoration(
@@ -63,7 +39,7 @@ class AddToCart extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: 250,
+                top: 120,
                 left: 0,
                 right: 0,
                 bottom: 0,
@@ -73,140 +49,160 @@ class AddToCart extends StatelessWidget {
                     borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 20),
-                        Expanded(
-                          child: ListView.builder(
-                            padding: EdgeInsets.zero,
-                            itemCount: items.length,
-                            itemBuilder: (context, index) {
-                              final item = items[index];
+                        if (state is GetCartLoadingState)
+                          const Expanded(child: Center(child: CircularProgressIndicator()))
+                        else if (state is GetCartErrorState)
+                          Expanded(
+                            child: Center(
+                              child: Text(
+                                'حدث خطأ: ${(state).error}',
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          )
+                        else if (items.isEmpty)
+                            const Expanded(child: Center(child: Text('السلة فارغة')))
+                          else
+                            Expanded(
+                              child: ListView.builder(
+                                itemCount: items.length,
+                                itemBuilder: (context, index) {
+                                  final item = items[index];
+                                  final quantity = (item['quantity'] ?? 1) as int;
+                                  final name = item['productName'] ?? '';
+                                  final price = (item['price'] ?? 0) as num;
+                                  final image = item['pictureUrl'];
 
-                              return Dismissible(
-                                key: Key(item.name),
-                                direction: DismissDirection.endToStart,
-                                background: Container(
-                                  height: 100,
-                                  alignment: Alignment.centerRight,
-                                  color: Colors.red.shade500,
-                                  padding: const EdgeInsets.only(right: 20),
-                                  child: const Icon(
-                                    Icons.delete,
-                                    color: Colors.white,
-                                    size: 30,
-                                  ),
-                                ),
-                                onDismissed: (direction) {
-                                  cubit.removeItem(item);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('${item.name} has been deleted')),
-                                  );
-                                },
-                                child: ClipPath(
-                                  clipper: RightTicketClipper(),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue.shade300,
-                                      borderRadius: BorderRadius.circular(20),
+                                  return Dismissible(
+                                    key: Key(item['productId'].toString()),
+                                    direction: DismissDirection.endToStart,
+                                    background: Container(
+                                      alignment: Alignment.centerRight,
+                                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                                      color: Colors.red,
+                                      child: const Icon(Icons.delete, color: Colors.white),
                                     ),
-                                    height: 110,
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.only(left: 10, right: 25, top: 10),
-                                    margin: const EdgeInsets.only(bottom: 12),
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Image.asset(
-                                          item.image,
-                                          width: 90,
-                                          height: 90,
-                                          fit: BoxFit.contain,
+                                    onDismissed: (direction) {
+                                      AppCubit.get(context).cartItems.removeAt(index);
+                                      AppCubit.get(context).emit(GetCartSuccessState());
+                                    },
+                                    child: ClipPath(
+                                      clipper: _TicketClipper(),
+                                      child: Container(
+                                        margin: const EdgeInsets.only(bottom: 20),
+                                        padding: const EdgeInsets.all(20),
+                                        decoration: BoxDecoration(
+                                          color: Colors.lightBlueAccent,
+                                          borderRadius: BorderRadius.circular(20),
                                         ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                item.name,
-                                                style: const TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Row(
-                                              children: [
-                                                IconButton(
-                                                  icon: const Icon(Icons.remove, color: Colors.white),
-                                                  iconSize: 20,
-                                                  onPressed: () {
-                                                    cubit.decreaseCount(item);
-                                                  },
-                                                ),
-                                                Container(
-                                                  width: 25,
-                                                  alignment: Alignment.center,
-                                                  child: Text(
-                                                    '${item.count}',
+                                            ClipRRect(
+                                              borderRadius: BorderRadius.circular(10),
+                                              child: Image.network(
+                                                image ?? '',
+                                                width: 100,
+                                                height: 100,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (context, error, stackTrace) {
+                                                  return Container(
+                                                    width: 100,
+                                                    height: 100,
+                                                    color: Colors.grey.shade300,
+                                                    child: const Icon(Icons.image_not_supported, size: 40),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                            const SizedBox(width: 16),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    name,
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
                                                     style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 16,
+                                                      fontSize: 18,
                                                       fontWeight: FontWeight.bold,
+                                                      color: Colors.white,
                                                     ),
                                                   ),
-                                                ),
-                                                IconButton(
-                                                  icon: const Icon(Icons.add, color: Colors.white),
-                                                  iconSize: 20,
-                                                  onPressed: () {
-                                                    cubit.increaseCount(item);
-                                                  },
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 5),
-                                            Text(
-                                              '\$${item.price * item.count}',
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
+                                                  const SizedBox(height: 6),
+                                                  Text(
+                                                    '\\${(price * quantity).toStringAsFixed(2)}',
+                                                    style: const TextStyle(
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: 16,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 10),
+                                                  SizedBox(
+                                                    height: 30,
+                                                    child: Row(
+                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                      children: [
+                                                        IconButton(
+                                                          icon: const Icon(Icons.remove, color: Colors.white, size: 18),
+                                                          padding: EdgeInsets.zero,
+                                                          onPressed: () {
+                                                            AppCubit.get(context).decreaseQuantity(index);
+                                                          },
+                                                        ),
+                                                        Container(
+                                                          width: 30,
+                                                          height: 25,
+                                                          alignment: Alignment.center,
+                                                          decoration: BoxDecoration(
+                                                            borderRadius: BorderRadius.circular(6),
+                                                          ),
+                                                          child: Text(
+                                                            '$quantity',
+                                                            style: const TextStyle(
+                                                              color: Colors.white,
+                                                              fontWeight: FontWeight.bold,
+                                                              fontSize: 16,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        IconButton(
+                                                          icon: const Icon(Icons.add, color: Colors.white, size: 18),
+                                                          padding: EdgeInsets.zero,
+                                                          onPressed: () {
+                                                            AppCubit.get(context).increaseQuantity(index);
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                           ],
                                         ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
+                                  );
+                                },
+                              ),
+                            ),
                         const SizedBox(height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
                               'Total',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              '\$${cubit.totalPrice}',
+                              '\\${cubit.getTotalCartPrice().toStringAsFixed(2)}',
                               style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -222,23 +218,16 @@ class AddToCart extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             gradient: const LinearGradient(
-                              colors: [
-                                Color(0xFF5785FF),
-                                Color(0xFF002A99),
-                              ],
+                              colors: [Color(0xFF5785FF), Color(0xFF002A99)],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
                           ),
                           child: MaterialButton(
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                             onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("Proceeding to payment...")),
-                              );
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (_) => BuyNow()),
@@ -265,4 +254,32 @@ class AddToCart extends StatelessWidget {
       },
     );
   }
+}
+
+class _TicketClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final radius = 12.0;
+    final centerY = size.height / 2;
+    final top = centerY - 20;
+    final bottom = centerY + 20;
+
+    final path = Path()
+      ..moveTo(0, 0)
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width, top)
+      ..arcToPoint(
+        Offset(size.width, bottom),
+        radius: Radius.circular(radius),
+        clockwise: false,
+      )
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
